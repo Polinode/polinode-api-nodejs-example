@@ -1,0 +1,18 @@
+{
+  "name": "polinode-api-nodejs-example",
+  "version": "1.0.0",
+  "description": "An example of using the Polinode API using node.js",
+  "main": "exampleAPICAll.js",
+  "scripts": {
+    "start": "node exampleAPICall.js"
+  },
+  "dependencies": {
+    "async": "~2.0.1",
+    "request": "~2.74.0"
+  },
+  "keywords": [
+    "Polinode"
+  ],
+  "author": "info@polinode.com",
+  "license": "MIT"
+}
