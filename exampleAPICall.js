@@ -124,11 +124,8 @@ function run(callback) {
     //Edit the network we just created. We will change the name of the network and change one attribute value
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v1/networks/' + networkId,
+        url: 'https://www.polinode.com/api/v1/networks/URLForUpdate/' + networkId,
         method: 'PUT',
-        body: {
-          name: 'My new network after edits'
-        },
         json: true,
         auth: {
           'user': username,
@@ -138,13 +135,11 @@ function run(callback) {
         if(error) {
           cb(error);
         } else {
-          var network = body;
-          var networkId = network._id;
-          console.log('Summary of updated network:');
-          console.log(JSON.stringify(network, null, 2));
+          var newNetworkUUID = body.networkUUID;
+          // var networkId = network._id;
           exampleNetworkData.nodes[0].attributes['Example Numerical Attribute Name'] = 25;
           request({
-            url: network.AWSURL,
+            url: body.AWSURL,
             method: 'PUT',
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: exampleNetworkData,
@@ -153,7 +148,28 @@ function run(callback) {
             if(error) {
               cb(error);
             } else {
-              cb(null, networkId);
+              request({
+                url: 'https://www.polinode.com/api/v1/networks/' + networkId,
+                method: 'PUT',
+                body: {
+                  name: 'My new network after edits',
+                  networkUUID: newNetworkUUID
+                },
+                json: true,
+                auth: {
+                  'user': username,
+                  'pass': password
+                }
+              }, function(error, response, body) {
+                if(error) {
+                  cb(error);
+                } else {
+                  var network = body;
+                  console.log('Summary of updated network:');
+                  console.log(JSON.stringify(network, null, 2));
+                  cb(null, networkId);
+                }
+              });
             }
           });
         }
