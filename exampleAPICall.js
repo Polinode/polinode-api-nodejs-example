@@ -85,15 +85,16 @@ function run(callback) {
     //Create a network
     function(cb) {
       request({
-        url: 'https://www.polinode.com/api/v1/networks',
+        url: 'https://www.polinode.com/api/v2/networks',
         method: 'POST',
         body: {
           name: 'My new network', //Required
+          networkJSON: exampleNetworkData, //Required - nodes and edges data
           status: 'Public', //Optional - defaults to Public
           fileType: 'JSON', //Optional - defaults to JSON
           originalFileType: 'JSON', //Optional - defaults to Excel
           isDirected: 'true', //Optional - defaults to true
-          description: 'An example network created via the Polinode API' //Optional - defaults to no description
+          description: 'An example network created via the Polinode API', //Optional - defaults to no description
         },
         json: true,
         auth: {
@@ -108,27 +109,20 @@ function run(callback) {
           var networkId = network._id;
           console.log('Summary of network created:');
           console.log(JSON.stringify(network, null, 2));
-          request({
-            url: network.AWSURL,
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json; charset=UTF-8'},
-            body: exampleNetworkData,
-            json: true
-          }, function(error, response, body) {
-            if(error) {
-              cb(error);
-            } else {
-              cb(null, networkId);
-            }
-          });
+          cb(null, networkId);
         }
       });
     },
     //Edit the network we just created. We will change the name of the network and change one attribute value
     function(networkId, cb) {
+      exampleNetworkData.nodes[0].attributes['Example Numerical Attribute Name'] = 25;
       request({
-        url: 'https://www.polinode.com/api/v1/networks/URLForUpdate/' + networkId,
+        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
         method: 'PUT',
+        body: {
+          name: 'My new network after edits',
+          networkJSON: exampleNetworkData,
+        },
         json: true,
         auth: {
           'user': username,
@@ -138,50 +132,17 @@ function run(callback) {
         if(error) {
           cb(error);
         } else {
-          var newNetworkUUID = body.networkUUID;
-          // var networkId = network._id;
-          exampleNetworkData.nodes[0].attributes['Example Numerical Attribute Name'] = 25;
-          request({
-            url: body.AWSURL,
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json; charset=UTF-8'},
-            body: exampleNetworkData,
-            json: true
-          }, function(error, response, body) {
-            if(error) {
-              cb(error);
-            } else {
-              request({
-                url: 'https://www.polinode.com/api/v1/networks/' + networkId,
-                method: 'PUT',
-                body: {
-                  name: 'My new network after edits',
-                  networkUUID: newNetworkUUID
-                },
-                json: true,
-                auth: {
-                  'user': username,
-                  'pass': password
-                }
-              }, function(error, response, body) {
-                if(error) {
-                  cb(error);
-                } else {
-                  var network = body;
-                  console.log('Summary of updated network:');
-                  console.log(JSON.stringify(network, null, 2));
-                  cb(null, networkId);
-                }
-              });
-            }
-          });
+          var network = body;
+          console.log('Summary of updated network:');
+          console.log(JSON.stringify(network, null, 2));
+          cb(null, networkId);
         }
       });
     },
     //Example of retrieving a summary of all networks for a user
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v1/networks',
+        url: 'https://www.polinode.com/api/v2/networks',
         method: 'GET',
         json: true,
         auth: {
@@ -202,7 +163,7 @@ function run(callback) {
     //Example of retrieving a specific network for a user. Authentication is not required for this action if this is a public network.
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v1/networks/' + networkId,
+        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
         method: 'GET',
         json: true,
         auth: {
@@ -216,28 +177,14 @@ function run(callback) {
           var network = body;
           console.log('Summary for a single network:');
           console.log(JSON.stringify(network, null, 2));
-          //Retrieve actual network data from Cloudfront
-          request({
-            url: network.AWSURL,
-            method: 'GET',
-            gzip: true
-          }, function(error, response, body) {
-            if(error) {
-              cb(error);
-            } else {
-              var networkData = JSON.parse(body);
-              console.log('Actual network data:');
-              console.log(JSON.stringify(networkData, null, 2));
-              cb(null, networkId);
-            }
-          });
+          cb(null, networkId);
         }
       });
     },
     //Delete the network that we created. Comment this function out to not delete the created network, i.e. to view it in the application
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v1/networks/' + networkId,
+        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
         method: 'DELETE',
         auth: {
           'user': username,
@@ -254,52 +201,6 @@ function run(callback) {
         }
       });
     },
-    //Load a GEXF file and upload it as a network
-    function(cb) {
-      fs.readFile('./diseasome.gexf', function (error, data) {
-        if (error) {
-          cb(error);        
-        } else {
-          request({
-            url: 'https://www.polinode.com/api/v1/networks',
-            method: 'POST',
-            body: {
-              name: 'My new GEXF network', //Required
-              status: 'Public', //Optional - defaults to Public
-              fileType: 'GEXF', //Optional - defaults to JSON
-              originalFileType: 'JSON', //Optional - defaults to Excel
-              isDirected: 'false', //Optional - defaults to true
-              description: 'The human disease network. See Human Disease Network, Goh K-I, Cusick ME, Valle D, Childs B, Vidal M, Barabási A-L (2007), Proc Natl Acad Sci USA 104:8685-8690' //Optional - defaults to no description
-            },
-            json: true,
-            auth: {
-              'user': username,
-              'pass': password
-            }
-          }, function(error, response, body) {
-            if(error) {
-              cb(error);
-            } else {
-              var network = body;
-              console.log('Summary of GEXF network created:');
-              console.log(JSON.stringify(network, null, 2));
-              request({
-                url: network.AWSURL,
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json; charset=UTF-8'},
-                body: data.toString(),
-              }, function(error, response, body) {
-                if(error) {
-                  cb(error);
-                } else {
-                  cb(null);
-                }
-              });
-            }
-          });
-        }
-      }); 
-    }
   ], function(err) {
     callback(err);
   });
