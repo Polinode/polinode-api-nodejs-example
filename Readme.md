@@ -7,4 +7,4 @@ This repository contains a short node.js script to demonstrate the use of Polino
 
 To run the script make sure you have node.js and npm installed then use 'npm install' followed by 'npm run-script start'.
 
-Documentation for the API can be found [here](https://docs.google.com/document/d/1r7W9RR9oIKKcxou4-D8wyio3FqQ2a7cic7faz3PSa5g).
+Documentation for the API can be found [here](https://docs.google.com/document/d/1VPtSzuIQQWCa7v-sPob9M4SwyJLyWtag8lVJLFiXbaI/edit).
