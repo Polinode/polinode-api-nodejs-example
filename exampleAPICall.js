@@ -85,7 +85,7 @@ function run(callback) {
     //Create a network
     function(cb) {
       request({
-        url: 'https://www.polinode.com/api/v2/networks',
+        url: 'https://app.polinode.com/api/v2/networks',
         method: 'POST',
         body: {
           name: 'My new network', //Required
@@ -117,7 +117,7 @@ function run(callback) {
     function(networkId, cb) {
       exampleNetworkData.nodes[0].attributes['Example Numerical Attribute Name'] = 25;
       request({
-        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
+        url: 'https://app.polinode.com/api/v2/networks/' + networkId,
         method: 'PUT',
         body: {
           name: 'My new network after edits',
@@ -142,7 +142,7 @@ function run(callback) {
     //Example of retrieving a summary of all networks for a user
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v2/networks',
+        url: 'https://app.polinode.com/api/v2/networks',
         method: 'GET',
         json: true,
         auth: {
@@ -163,7 +163,7 @@ function run(callback) {
     //Example of retrieving a specific network for a user. Authentication is not required for this action if this is a public network.
     function(networkId, cb) {
       request({
-        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
+        url: 'https://app.polinode.com/api/v2/networks/' + networkId,
         method: 'GET',
         json: true,
         auth: {
@@ -182,25 +182,25 @@ function run(callback) {
       });
     },
     //Delete the network that we created. Comment this function out to not delete the created network, i.e. to view it in the application
-    function(networkId, cb) {
-      request({
-        url: 'https://www.polinode.com/api/v2/networks/' + networkId,
-        method: 'DELETE',
-        auth: {
-          'user': username,
-          'pass': password
-        }
-      }, function(error, response, body) {
-        if(error) {
-          cb(error);
-        } else {
-          console.log('Network deleted');
-          var networkData = JSON.parse(body);
-          console.log(JSON.stringify(networkData, null, 2));
-          cb(null);
-        }
-      });
-    },
+    // function(networkId, cb) {
+    //   request({
+    //     url: 'https://app.polinode.com/api/v2/networks/' + networkId,
+    //     method: 'DELETE',
+    //     auth: {
+    //       'user': username,
+    //       'pass': password
+    //     }
+    //   }, function(error, response, body) {
+    //     if(error) {
+    //       cb(error);
+    //     } else {
+    //       console.log('Network deleted');
+    //       var networkData = JSON.parse(body);
+    //       console.log(JSON.stringify(networkData, null, 2));
+    //       cb(null);
+    //     }
+    //   });
+    // },
   ], function(err) {
     callback(err);
   });
